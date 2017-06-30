@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+		var deviceWidth =  parseInt(window.screen.width);var deviceScale = deviceWidth/640;var ua = navigator.userAgent;if (/Android (\d+\.\d+)/.test(ua)){var version = parseFloat(RegExp.$1);if(version>2.3){document.write('<meta name="viewport" content="width=640,initial-scale='+deviceScale+', minimum-scale = '+deviceScale+', maximum-scale = '+deviceScale+', target-densitydpi=device-dpi">');}else{document.write('<meta name="viewport" content="width=640,initial-scale=0.75,maximum-scale=0.75,minimum-scale=0.75,target-densitydpi=device-dpi" />');}} else {document.write('<meta name="viewport" content="width=640, user-scalable=no">');}
+	</script>
+	<meta charset="UTF-8">
+	<title>Demo</title>
+	<link rel="stylesheet" href="reset.css">
+</head>
+<style>
+	*{padding: 0;margin:0;}
+	a{
+		color: #fff;
+		margin:  0 10px;
+		display: inline-block;
+	}
+</style>
+<body>
+	<a href="#/name">点我跳转到name</a>
+	<a href="#/age">点我跳转到age</a>
+	<a href="#/say">点我图爱站到say</a>
+	<script src='jquery-2.1.1.min.js'></script>
+	<script src='Router.js'></script>
+	<script>
+		Router.route('/name',function(){
+			$('body').css('background', 'orange');
+		})
+		Router.route('/age',function(){
+			$('body').css('background', 'blue');
+		})
+		Router.route('/say',function(){
+			$('body').css('background', '#000');
+		})
+	</script>
+</body>
+</html>

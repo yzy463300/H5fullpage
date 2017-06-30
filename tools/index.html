@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+</head>
+<body>
+	<script src='jquery-2.1.1.min.js'></script>
+	<script>
+	/*
+		const f = ()=>console.log('now');
+		Promise.resolve().then(f);
+		console.log('next');
+		//next 
+		//now
+	*/
+
+	function ChangeParam(url,name,value){
+		var url=url;
+		var newUrl="";
+		var reg = new RegExp("(^|)"+ name +"=([^&]*)(|$)");
+		var tmp = name + "=" + value;
+		if(url.match(reg) != null){
+			newUrl= url.replace(eval(reg),tmp);
+		}else{
+			 if(url.match("[\?]")){
+				 newUrl = url + "&" + tmp;
+			 }else{
+				 newUrl = url + "?" + tmp;
+			 }
+		}
+		return newUrl;
+	}
+	$(document).on('click', function(event) {
+		var url = location.href;
+		var value = new Date().getTime();
+		console.log(value);
+		ChangeParam(url,'tamp',value);
+
+	});
+	</script>
+</body>
+</html>

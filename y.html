@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script>
+		var deviceWidth =  parseInt(window.screen.width);var deviceScale = deviceWidth/640;var ua = navigator.userAgent;if (/Android (\d+\.\d+)/.test(ua)){var version = parseFloat(RegExp.$1);if(version>2.3){document.write('<meta name="viewport" content="width=640,initial-scale='+deviceScale+', minimum-scale = '+deviceScale+', maximum-scale = '+deviceScale+', target-densitydpi=device-dpi">');}else{document.write('<meta name="viewport" content="width=640,initial-scale=0.75,maximum-scale=0.75,minimum-scale=0.75,target-densitydpi=device-dpi" />');}} else {document.write('<meta name="viewport" content="width=640, user-scalable=no">');}
+	</script>
+	<meta charset="UTF-8">
+	<title>Demo</title>
+	<link rel="stylesheet" href="reset.css">
+</head>
+<style>
+	*{padding: 0;margin:0;}
+	.btn{width: 300px;height: 300px;background-color: orange}
+</style>
+<body>
+	<div class="btn"></div>
+	<script src='jquery-2.1.1.min.js'></script>
+	<script src='yui.js'></script>
+	<script>
+		$('.btn').on('click', function(event) {
+			yui.alert('asd',function(){
+				alert(1);
+			})
+		});
+		
+	</script>
+</body>
+</html>
