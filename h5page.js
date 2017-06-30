@@ -1,112 +1,118 @@
 /*
-*author: 410636163@qq.com
+*author: 410636163@qq.com  Young
 *H5全屏滚动插件
 *
 */
-;(function(){
-	var opt = {
-		pageShow:function(){},
-		'useMusic':{
-			'autoPlay':true,
-			'loopPlay':true,
-		}
+;(function(){ 
+	var H5 = function(elements,option){  
+		this.touchStart = this.touchStart.bind(this);
+		this.touchMove = this.touchMove.bind(this);
+		this.touchEnd = this.touchEnd.bind(this);
+		this.pageHeight = $(window).height();
+		this.dragStart = 0;//开始拖动时手指Y的位置
+		this.moveDistance = 0;//手指移动的距离
+		this.flag = true;//每屏是否切换完成
+		this.pageIndex = 0;//当前页面index
+		this.loop = option.loop || true;//是否循环滚动
+		this.zIndex = 1;
+		this.page = elements.find('.item');
+		this.len = this.page.length - 1; 
+		this.index = $(this).draggable;
+		elements.on({
+			'touchstart':this.touchStart,
+			'touchmove':this.touchMove,
+			'touchend':this.touchEnd
+		}); 
+		this.initMuisc(option);
+		this.initDom(option);
 	}
-	var pageHeight = $(window).height();
-	var dragStart = 0;//开始拖动时手指Y的位置
-	var moveDistance = 0;//手指移动的距离
-	var percentage = 0;//手指滑动的距离相对于屏幕高度的百分比
-
-	var flag = true;//每屏是否切换完成
-	var pageIndex = 0;//当前页面index
-	var zIndex = 1;
-	var page = $('.H5 .item');
-	var len = page.length - 1;
-	$('.H5').on({
-		'touchstart':touchStart,
-		'touchmove':touchMove,
-		'touchend':touchEnd
-	});
-	function touchStart(e){
-		dragStart = e.originalEvent.targetTouches[0].clientY;
-		console.log('start: '+ dragStart);
-	}
-	function touchMove(e){
-		moveDistance = e.originalEvent.targetTouches[0].clientY - dragStart;
-		console.log('move: '+ moveDistance);
-	}
-	function touchEnd(e){
-		$('.H5').off('tochmove');
-		$('.H5').off('tochend');
-		console.log('end: ' + moveDistance);
-		percentage = moveDistance / pageHeight;
-		if ( moveDistance < 0) {//up
-			if (flag) {
-				flag = false
-				pageIndex++;
-				if (pageIndex > len) {
-					pageIndex = 0;
-				}
-				zIndex++;
-				page.eq(pageIndex).css({'top': '100%','zIndex':zIndex,'-webkit-transform':'translate3d(0,0,0)'});
-				page.eq(pageIndex).show();
-				page.eq(pageIndex).transition({y : -pageHeight},800,function(){
-					flag = true;
-					if (pageIndex == 0) {
-						page.eq(len).hide()
-					}else{
-						page.eq(pageIndex-1).hide();
+	
+	H5.prototype.touchStart = function(e) {
+	   	this.dragStart = e.originalEvent.targetTouches[0].clientY;
+		this.moveDistance = 0;
+	};
+	H5.prototype.touchMove = function(e) {
+		event.preventDefault();
+		this.moveDistance = e.originalEvent.targetTouches[0].clientY - this.dragStart;
+	};
+	H5.prototype.touchEnd = function(e) {
+		var that = this;
+		if (this.moveDistance <= -30 ) {
+			if (this.flag) {
+				this.flag = false;
+				if (!this.loop) {
+					if (++this.pageIndex > len) {
+						this.flag = true;
+						this.pageIndex = len;
+						$('.arrow').hide();
+						return
 					}
+				}else{
+					this.pageIndex = ++this.pageIndex > this.len ? 0 : this.pageIndex;
+				}
+				this.page.eq(this.pageIndex).css({'top': '100%','zIndex': ++this.zIndex,'-webkit-transform':'translate3d(0,0,0)'});
+				this.page.eq(this.pageIndex).show();
+				if (that.pageIndex == 0) {
+					that.page.eq(that.len).hide();
+				}else{
+					that.page.eq(that.pageIndex-1).hide();
+				}
+				this.page.eq(this.pageIndex).transition({y : -this.pageHeight},800,function(){
+		 			that.flag = true;
+					
 				})  
 			}
-		}else if (moveDistance > 0) {//down
-			console.log(flag);
-			if (flag) {
-				flag = false;
-				pageIndex--;
-				if (pageIndex < 0) {
-					pageIndex = len;
-				}
-				zIndex++;
-				page.eq(pageIndex).css({'top': '-100%','zIndex':zIndex,'-webkit-transform':'translate3d(0,0,0)'});
-				page.eq(pageIndex).show();
-				page.eq(pageIndex).transition({y : pageHeight},800,function(){
-					flag = true;
-					console.log(pageIndex);
-					if (pageIndex == len) {
-						page.eq(0).hide()
-					}else{
-						page.eq(pageIndex+1).hide();
-						if (pageIndex+1 == 3) {
-							
-						}
+		}else if (this.moveDistance >= 30) {
+			if (this.flag) {
+				this.flag = false;
+				if (!this.loop) {
+					if (--this.pageIndex < 0) {
+						this.pageIndex = 0;
+						this.flag = true;
+						$('.arrow').hide();
+						return
 					}
+				}else{
+					this.pageIndex = --this.pageIndex < 0 ? this.len : this.pageIndex;
+				}
+				this.page.eq(this.pageIndex).css({'top': '-100%','zIndex':++this.zIndex,'-webkit-transform':'translate3d(0,0,0)'});
+				this.page.eq(this.pageIndex).show();
+				if (that.pageIndex == that.len) {
+					that.page.eq(0).hide()
+				}else{
+					that.page.eq(that.pageIndex+1).hide();
+					if (that.pageIndex+1 == 3) {
+					}
+				}
+				this.page.eq(this.pageIndex).transition({y : this.pageHeight},800,function(){
+					that.flag = true;
+					
 				});
 			}
 		}
-		showTime(pageIndex)
-	}
-	function initMuisc(opt,option){
-		console.log(option);
-		if (opt.useMusic) {
-			var autoplay = opt.useMusic.autoPlay ? 'autoplay="autoplay"' : '';
-			var loopPlay = opt.useMusic.loopPlay ? 'loop="loop"' : '';
-			var src = option.audio;
+	};
+	H5.prototype.initMuisc = function(option) {
+		if (option.audio) {
+			var autoplay = 'autoplay="autoplay"';
+			var loopPlay = 'loop="loop"';
+			var src = option.audio;  
 		}
-		if (option.img) {
+		if(option.img){
 			var musicImg = 'url(' + option.img + ')';
 		}
 		$('body').append('<div class="bgm playing"><audio id="audio" src='+src+' '+autoplay+' '+loopPlay+'></audio></div>');
 		$('.bgm').css({
-			width: '48px',
-			height: '48px',
+			width: '.48rem',
+			height: '.48rem',
 			backgroundImage:  musicImg || 'url(http://img.cntapp.com/h5/dragon/assets/music.png)',
 			position:'fixed',
-			right:'30px',
-			top:'30px',
+			left:'.30rem',
+			top:'.30rem',
 			zIndex:'9999',
-			backgroundPosition:'-48px 0'  
+			backgroundSize:'.96rem .48rem',
+			backgroundPosition:'-.48rem 0'  
 		});
-		$('.bgm').click(function(event) {
+		$('.bgm').on('click',function(event) {
 			event.stopPropagation();
 			if ($(this).hasClass('playing')) {
 				$(this).removeClass('playing');
@@ -114,82 +120,43 @@
 				$('#audio')[0].pause();
 			}else{
 				$(this).addClass('playing');
-				$(this).css('backgroundPosition', '-48px 0');
+				$(this).css('backgroundPosition', '-.48rem 0');
 				$('#audio')[0].play();
 			}
 		});
 		document.addEventListener("WeixinJSBridgeReady", function(){
 		    $('#audio')[0].play();
-		 }, false);
-	}
-	function initDom(){//初始化dom，把该隐藏的隐藏掉
+		}, false);
+	};
+	H5.prototype.initDom = function(option) {
 		$('.part').each(function(index, el) {
-			$(this).addClass('hide')
+			$(this).addClass('hide');
 		});
-	}
-	function showTime(index){//控制元素动画出现的时间
-		console.log(index); 
-		page.eq(index).find('.part').each(function(index, el) {
-			$(this).attr('data-delay');
-		});
-	}
-	// function initDom(){
-	// 	return
-	// 	$('.H5').swipe({
-	// 		swipe:function(event,direction,distance,duration,fingerCount){
-	// 			if (direction == 'up') {
-	// 				console.log(flag);
-	// 				if (flag) {
-	// 					flag = false
-	// 					pageIndex++;
-	// 					if (pageIndex > len) {
-	// 						pageIndex = 0;
-	// 					}
-	// 					zIndex++;
-	// 					page.eq(pageIndex).css({'top': '100%','zIndex':zIndex,'-webkit-transform':'translate3d(0,0,0)'});
-	// 					page.eq(pageIndex).show();
-	// 					page.eq(pageIndex).transition({y : -pageHeight},800,function(){
-	// 						flag = true;
-	// 						console.log(pageIndex);
-	// 						if (pageIndex == 0) {
-	// 							page.eq(len).hide()
-	// 						}else{
-	// 							page.eq(pageIndex-1).hide();
-	// 						}
-	// 					})  
-	// 				}
-	// 			}else if (direction == 'down') {
-	// 				console.log(flag);
-	// 				if (flag) {
-	// 					flag = false;
-	// 					pageIndex--;
-	// 					if (pageIndex < 0) {
-	// 						pageIndex = len;
-	// 					}
-	// 					zIndex++;
-	// 					page.eq(pageIndex).css({'top': '-100%','zIndex':zIndex,'-webkit-transform':'translate3d(0,0,0)'});
-	// 					page.eq(pageIndex).show();
-	// 					page.eq(pageIndex).transition({y : pageHeight},800,function(){
-	// 						flag = true;
-	// 						console.log(pageIndex);
-	// 						if (pageIndex == len) {
-	// 							page.eq(0).hide()
-	// 						}else{
-	// 							page.eq(pageIndex+1).hide();
-	// 							if (pageIndex+1 == 3) {
-									
-	// 							}
-	// 						}
-	// 					});
-	// 				}
-	// 			}
-	// 		}
-	// 	});
-	// }
-	window.h5 = {
-		init:function(option){
-			initMuisc(opt,option);
-			initDom();
+		if (option.useArrow) {
+			$('body').append('<div class="arrow"></div>');
+			$('.arrow').css({
+				position:'fixed',
+				left:'0',
+				bottom:'.3rem',
+				zIndex:'998',
+				width: '100%',
+				height: '.4rem',
+				backgroundImage:'url(http://img.cntapp.com/h5/arrow_down.png)',
+				backgroundRepeat:'no-repeat',
+				backgroundPosition:'center',
+				backgroundSize:'.7rem .4rem',
+				'-webkit-animation' : '1s arrow_ ease infinite'
+			});
 		}
+	};
+	if (typeof module !== 'undefined' && typeof exports === 'object') {
+	    module.exports = H5;
+	} else {
+	    window.H5 = H5;
 	}
-})()
+})();
+
+
+
+
+
